@@ -1,0 +1,233 @@
+﻿schema {
+  query: Query
+  mutation: Mutation
+}
+
+interface DevicePayload {
+  deviceId: UUID!
+  installationId: UUID!
+  softwareVersion: String!
+}
+
+interface Error {
+  message: String!
+}
+
+"A connection to a list of items."
+type AllGroupsConnection {
+  "Information to aid in pagination."
+  pageInfo: PageInfo!
+  "A list of edges."
+  edges: [AllGroupsEdge!]
+  "A flattened list of the nodes."
+  nodes: [Group!]
+}
+
+"An edge in a connection."
+type AllGroupsEdge {
+  "A cursor for use in pagination."
+  cursor: String!
+  "The item at the end of the edge."
+  node: Group!
+}
+
+type BlindPayload implements DevicePayload {
+  openPercentage: Int!
+  deviceId: UUID!
+  installationId: UUID!
+  softwareVersion: String!
+}
+
+type CreateGroupPayload {
+  group: Group
+  errors: [CreateGroupError!] @cost(complexity: 5)
+}
+
+type Device {
+  deviceType: DeviceType!
+  deviceId: UUID!
+  name: String!
+  payload: DevicePayload!
+}
+
+type Group {
+  id: UUID!
+  ownerId: UUID!
+  name: String!
+  userDevices: [UserDevice!]!
+}
+
+
+type Mutation {
+  createGroup(input: CreateGroupInput!): CreateGroupPayload! @authorize
+}
+
+"Information about pagination in a connection."
+type PageInfo {
+  "Indicates whether more edges exist following the set defined by the clients arguments."
+  hasNextPage: Boolean!
+  "Indicates whether more edges exist prior the set defined by the clients arguments."
+  hasPreviousPage: Boolean!
+  "When paginating backwards, the cursor to continue."
+  startCursor: String
+  "When paginating forwards, the cursor to continue."
+  endCursor: String
+}
+
+type Query {
+  allGroups("Returns the first _n_ elements from the list." first: Int "Returns the elements in the list that come after the specified cursor." after: String "Returns the last _n_ elements from the list." last: Int "Returns the elements in the list that come before the specified cursor." before: String where: GroupFilterInput order: [GroupSortInput!]): AllGroupsConnection @authorize @cost(complexity: 5, multipliers: [ "first" ])
+}
+
+type SwitchPayload implements DevicePayload {
+  value: Boolean!
+  deviceId: UUID!
+  installationId: UUID!
+  softwareVersion: String!
+}
+
+type ThermometerPayload implements DevicePayload {
+  currentTemperature: Float @cost(complexity: 30, multipliers: [  ])
+  errorThrowingTemperature: Float @cost(complexity: 5)
+  deviceId: UUID!
+  installationId: UUID!
+  softwareVersion: String!
+}
+
+type UserDevice {
+  userId: UUID!
+  deviceId: UUID!
+  device: Device! @cost(complexity: 3, multipliers: [  ])
+  alias: String!
+}
+
+union CreateGroupError = GroupAlreadyExistsError | GroupCannotBeEmptyError
+
+type GroupAlreadyExistsError implements Error {
+  message: String!
+  name: String!
+}
+
+type GroupCannotBeEmptyError implements Error {
+  message: String!
+  name: String!
+}
+
+input CreateGroupInput {
+  name: String!
+}
+
+input DeviceFilterInput {
+  and: [DeviceFilterInput!]
+  or: [DeviceFilterInput!]
+  deviceId: UuidOperationFilterInput
+  name: StringOperationFilterInput
+  deviceType: DeviceTypeOperationFilterInput
+  payload: DevicePayloadFilterInput
+}
+
+input DevicePayloadFilterInput {
+  and: [DevicePayloadFilterInput!]
+  or: [DevicePayloadFilterInput!]
+  deviceId: UuidOperationFilterInput
+  installationId: UuidOperationFilterInput
+  softwareVersion: StringOperationFilterInput
+}
+
+input DeviceTypeOperationFilterInput {
+  eq: DeviceType
+  neq: DeviceType
+  in: [DeviceType!]
+  nin: [DeviceType!]
+}
+
+input GroupFilterInput {
+  and: [GroupFilterInput!]
+  or: [GroupFilterInput!]
+  id: UuidOperationFilterInput
+  name: StringOperationFilterInput
+  ownerId: UuidOperationFilterInput
+  userDevices: ListFilterInputTypeOfUserDeviceFilterInput
+}
+
+input GroupSortInput {
+  id: SortEnumType
+  name: SortEnumType
+  ownerId: SortEnumType
+}
+
+input ListFilterInputTypeOfUserDeviceFilterInput {
+  all: UserDeviceFilterInput
+  none: UserDeviceFilterInput
+  some: UserDeviceFilterInput
+  any: Boolean
+}
+
+input StringOperationFilterInput {
+  and: [StringOperationFilterInput!]
+  or: [StringOperationFilterInput!]
+  eq: String
+  neq: String
+  contains: String
+  ncontains: String
+  in: [String]
+  nin: [String]
+  startsWith: String
+  nstartsWith: String
+  endsWith: String
+  nendsWith: String
+}
+
+input UserDeviceFilterInput {
+  and: [UserDeviceFilterInput!]
+  or: [UserDeviceFilterInput!]
+  userId: UuidOperationFilterInput
+  deviceId: UuidOperationFilterInput
+  alias: StringOperationFilterInput
+  device: DeviceFilterInput
+}
+
+input UuidOperationFilterInput {
+  eq: UUID
+  neq: UUID
+  in: [UUID]
+  nin: [UUID]
+  gt: UUID
+  ngt: UUID
+  gte: UUID
+  ngte: UUID
+  lt: UUID
+  nlt: UUID
+  lte: UUID
+  nlte: UUID
+}
+
+enum ApplyPolicy {
+  BEFORE_RESOLVER
+  AFTER_RESOLVER
+  VALIDATION
+}
+
+enum DeviceType {
+  UNKNOWN
+  SWITCH
+  BLIND
+  THERMOMETER
+}
+
+enum SortEnumType {
+  ASC
+  DESC
+}
+
+directive @authorize("The name of the authorization policy that determines access to the annotated resource." policy: String "Roles that are allowed to access the annotated resource." roles: [String!] "Defines when when the authorize directive shall be applied.By default the authorize directives are applied during the validation phase." apply: ApplyPolicy! = BEFORE_RESOLVER) repeatable on OBJECT | FIELD_DEFINITION
+
+"The cost directives is used to express the complexity of a field."
+directive @cost("Defines the complexity of the field." complexity: Int! = 1 "Defines field arguments that act as complexity multipliers." multipliers: [MultiplierPath!] defaultMultiplier: Int) on FIELD_DEFINITION
+
+"The `@defer` directive may be provided for fragment spreads and inline fragments to inform the executor to delay the execution of the current fragment to indicate deprioritization of the current fragment. A query with `@defer` directive will cause the request to potentially return multiple responses, where non-deferred data is delivered in the initial response and data deferred is delivered in a subsequent response. `@include` and `@skip` take precedence over `@defer`."
+directive @defer("If this argument label has a value other than null, it will be passed on to the result of this defer directive. This label is intended to give client applications a way to identify to which fragment a deferred result belongs to." label: String "Deferred when true." if: Boolean) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"The multiplier path scalar represents a valid GraphQL multiplier path string."
+scalar MultiplierPath
+
+scalar UUID @specifiedBy(url: "https:\/\/tools.ietf.org\/html\/rfc4122")

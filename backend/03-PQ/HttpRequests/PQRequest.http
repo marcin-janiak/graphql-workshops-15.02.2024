@@ -1,0 +1,11 @@
+POST https://localhost:5001/graphql
+Content-Type: application/json
+
+{
+  "id": "device"
+}
+
+
+######
+
+GET https://localhost:5001/graphql/?extensions={"persistedQuery":{"version":1,"md5Hash":"device"}}

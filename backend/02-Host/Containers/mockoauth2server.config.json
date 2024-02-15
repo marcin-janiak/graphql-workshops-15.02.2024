@@ -1,0 +1,22 @@
+{
+  "interactiveLogin": true,
+  "httpServer": "NettyWrapper",
+  "tokenCallbacks": [
+    {
+      "issuerId": "workshops-issuer",
+      "tokenExpiry": 120,
+      "requestMappings": [
+        {
+          "requestParam": "scope",
+          "match": "scope1",
+          "claims": {
+            "sub": "subByScope",
+            "aud": [
+              "audByScope"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

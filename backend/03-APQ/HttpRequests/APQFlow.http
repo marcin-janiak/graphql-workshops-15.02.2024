@@ -1,0 +1,14 @@
+### Persisted non existant query
+GET https://localhost:5001/graphql/?extensions={"persistedQuery":{"version":1,"md5Hash":"71yeex4k3iYWQgg9TilDIg=="}}
+
+### First time query
+
+GET https://localhost:5001/graphql/?query={device{name id}}&extensions={"persistedQuery":{"version":1,"md5Hash":"31016cd150de009a387b070809b612f5"}}
+
+### 
+
+GET https://localhost:5001/graphql/?query={device{id name }}
+
+### PersistedQuery
+GET https://localhost:5001/graphql/?extensions={"persistedQuery":{"version":1,"md5Hash":"31016cd150de009a387b070809b612f5"}}
+
