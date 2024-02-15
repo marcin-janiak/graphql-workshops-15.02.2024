@@ -6,6 +6,8 @@
 
 [Chilli Cream (dotnet)](https://chillicream.com)
 
+[Fairy Bread - Validation](https://github.com/benmccallum/fairybread)
+
 
 [Production Ready GraphQL - Errors](https://productionreadygraphql.com/2020-08-01-guide-to-graphql-errors)
 
