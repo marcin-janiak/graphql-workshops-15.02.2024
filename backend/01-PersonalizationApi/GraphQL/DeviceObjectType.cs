@@ -8,15 +8,7 @@ public class DeviceObjectType : ObjectType<Device>
     protected override void Configure(IObjectTypeDescriptor<Device> descriptor)
     {
         base.Configure(descriptor);
-
-        // descriptor.BindFieldsExplicitly();
-        // descriptor.BindFieldsImplicitly();
-        // descriptor.Field(x => x.DeviceId);
-        // descriptor.Field("hello")
-        //     .Resolve(_ => "hello")
-        //     .Type<StringType>()
-        //     .Authorize();
-
+        
         descriptor.Field("payloadBetter")
             .Resolve(resolverContext =>
             {

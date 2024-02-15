@@ -9,5 +9,15 @@ public class DeviceObjectType : ObjectType<Device>
         base.Configure(descriptor);
         descriptor.Field(x => x.DeviceType).IsProjected();
         descriptor.Field(x => x.DeviceId).IsProjected();
+
+        // descriptor.Field(x => x.Name).Ignore();
+        // descriptor.BindFieldsExplicitly();
+        // descriptor.BindFieldsImplicitly();
+        // descriptor.Field(x => x.DeviceId);
+        // descriptor.Field("hello")
+        //     .Resolve(_ => "hello")
+        //     .Type<StringType>()
+        //     .Authorize();
+
     }
 }
